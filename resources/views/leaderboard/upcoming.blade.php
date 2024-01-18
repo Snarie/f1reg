@@ -2,19 +2,24 @@
 
 @section('content')
 
-    <form action="{{ route('profiles.store') }}" method="POST">
-        @csrf
+    <h1>Leaderboard voor {{ $race->name }}</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Positie</th>
+            <th>Gebruiker</th>
+            <th>Ronde Tijd</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($leaderboard as $index => $result)
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $result->user->name }}</td>
+                <td>{{ $result->laptime }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
 
-        <input type="hidden" value="{{ Auth::user()->id }}" name="user_id">
-        <label>First Name:</label>
-        <input type="text" name="firstname">
-
-        <label>Last Name:</label>
-        <input type="text" name="lastname">
-
-        <label>Mobile:</label>
-        <input type="text" name="mobile">
-
-        <button type="submit">Create</button>
-    </form>
 @endsection

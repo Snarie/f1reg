@@ -41,7 +41,9 @@
                 <div class="mt-16">
 {{--                    @dd($users)--}}
                     @foreach($users as $user)
-                        <p>{{$user->profile->firstname}}</p>
+                        @if($user->profile)
+                            <p>{{$user->profile->firstname}}</p>
+                        @endif
                     @endforeach
                 </div>
             </div>

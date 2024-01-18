@@ -23,9 +23,18 @@ class User extends Authenticatable
         'password',
     ];
 
+    protected $guarded = [
+        'admin'
+    ];
+
     public function profile()
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function raceResults()
+    {
+        return $this->hasMany(RaceResult::class);
     }
 
     /**

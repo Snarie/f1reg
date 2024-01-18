@@ -4,16 +4,13 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProfileRequest extends FormRequest
+class StoreRaceResultRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        if(auth()->user()->profile) {
-            return false;
-        }
         return true;
     }
 
@@ -25,10 +22,9 @@ class StoreProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'mobile' => 'required|string|max:15',
-            'user_id' => 'required|int|unique:profiles'
+            'user_id' => 'required|exists:users,id',
+            'race_id' => 'required|exists:races,id',
+            'laptime' => 'required|regex:/^[0-5]?[0-9]:[0-5][0-9]:[0-9]{3}$/',
         ];
     }
 }

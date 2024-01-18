@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RaceResult;
+use App\Models\Race;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +25,20 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $names = Race::distinct()->orderBy('name')->pluck('name');
+        $results = [];
+        foreach ($names as $name) {
+            $bestResult = RaceResult::whereHas('race', function ($query) use ($name) {
+                $query->where('name', $name);
+            })->orderBy('laptime')->first();
+            $results[] = [
+                'race' => $name,
+                'race_id' => $bestResult->race->id,
+                'name' => $bestResult->user->name,
+                'laptime' => $bestResult->laptime
+            ];
+        }
+
+        return view('home', compact('results'));
     }
 }

@@ -15,8 +15,19 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <style>
+        .custom-bg {
+            background-image: url('/images/background.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+        }
+    </style>
+
 </head>
-<body>
+<body class="custom-bg">
 <div id="app">
     <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
         <div class="container">
@@ -32,29 +43,104 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item dropdown">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                            profiles
-                        </a>
+                    @if(auth()->check())
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Profiles
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <ul class="navbar-nav me-auto">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/profiles">
+                                            Index
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        @if(!auth()->user()->profile)
+                                            <a class="dropdown-item" href="/profiles/create">
+                                                Create
+                                            </a>
+                                        @else
+                                            <a class="dropdown-item" href="{{ route('profiles.edit', auth()->user()->profile->id) }}">
+                                                Update
+                                            </a>
+                                        @endif
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+                    @if(auth()->check())
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Races
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <ul class="navbar-nav me-auto">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/races">
+                                            Index
+                                        </a>
+                                    </li>
+                                    @if(auth()->user()->admin)
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="/races/create">
+                                                Create
+                                            </a>
+                                        </li>
+                                   @endif
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+                    @if(auth()->check())
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Race Results
+                            </a>
 
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <ul class="navbar-nav me-auto">
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="/profiles">
-                                        index
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="/profiles/create">
-                                        create
-                                    </a>
-                                </li>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <ul class="navbar-nav me-auto">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/race-results">
+                                            Index
+                                        </a>
+                                    </li>
+                                    @if(auth()->user()->admin)
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="/race-results/create">
+                                                Create
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+{{--                    @if(auth()->check())--}}
+{{--                        <li class="nav-item dropdown">--}}
+{{--                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>--}}
+{{--                                Leaderboard--}}
+{{--                            </a>--}}
 
-                            </ul>
-
-                        </div>
-                    </li>
+{{--                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">--}}
+{{--                                <ul class="navbar-nav me-auto">--}}
+{{--                                    <li class="nav-item">--}}
+{{--                                        <a class="dropdown-item" href="{{ route('leaderboard.upcoming') }}">--}}
+{{--                                            upcoming--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+{{--                                    @if(auth()->user()->admin)--}}
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a class="dropdown-item" href="/race-results/create">--}}
+{{--                                                idk--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endif--}}
+{{--                                </ul>--}}
+{{--                            </div>--}}
+{{--                        </li>--}}
+{{--                    @endif--}}
                 </ul>
 
                 <!-- Right Side Of Navbar -->
@@ -80,6 +166,9 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('profiles.show', Auth::user()->profile->id) }}">
+                                    Profile
+                                </a>
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                    onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -90,6 +179,7 @@
                                     @csrf
                                 </form>
                             </div>
+
                         </li>
                     @endguest
                 </ul>
@@ -103,3 +193,5 @@
 </div>
 </body>
 </html>
+
+

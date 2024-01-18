@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Profile;
+use App\Models\RaceResult;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -30,7 +32,9 @@ class ProfileController extends Controller
      */
     public function create()
     {
-
+        if(auth()->user()->profile) {
+            return redirect()->route('profiles.edit', auth()->user()->profile->id);
+        }
         return view('profiles.create');
     }
 
@@ -57,7 +61,32 @@ class ProfileController extends Controller
      */
     public function show(Profile $profile)
     {
-        return view('profiles.show', compact('profile'));
+        $minLaptimes = RaceResult::select('race_id', DB::raw('MIN(laptime) as min_laptime'))
+            ->groupBy('race_id');
+
+        $username = $profile->user->name;
+        $raceWins = RaceResult::joinSub($minLaptimes, 'min_laptimes', function ($join) {
+            $join->on('race_results.race_id', '=', 'min_laptimes.race_id');
+            $join->on('race_results.laptime', '=', 'min_laptimes.min_laptime');
+        })
+            ->join('races', 'race_results.race_id', '=', 'races.id')
+            ->join('users', 'race_results.user_id', '=', 'users.id')
+            ->select('races.id as race_id', 'races.name as race_name', 'races.date as race_date', 'race_results.laptime as laptime')
+            ->where('users.name', $username)
+            ->distinct()
+            ->orderBy('races.date', 'desc') // Adjust 'desc' or 'asc' based on your sorting preference
+            ->get()->slice(0,3);
+
+//        dd($racesWon);
+
+        $user_id = $profile->user->id;
+        $raceResults = RaceResult::join('races', 'race_results.race_id', '=', 'races.id')
+            ->join('users', 'race_results.user_id', '=', 'users.id')
+            ->where('race_results.user_id', $user_id)
+            ->orderBy('races.date')
+            ->select('race_results.laptime', 'users.name as user_name', 'races.name as race_name', 'races.date as race_date') // Select the columns you need
+            ->get();
+        return view('profiles.show', compact('profile', 'raceResults', 'raceWins'));
     }
 
     /**
@@ -65,6 +94,7 @@ class ProfileController extends Controller
      */
     public function edit(Profile $profile)
     {
+
         if ($profile->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -75,21 +105,22 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Profile $profile)
+    public function update(UpdateProfileRequest $request, Profile $profile)
     {
+        //$this->authorize('update', $profile);
         if ($profile->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
         $request->validate([
-            'firstname' => 'required|string|255',
-            'lastname' => 'required|string|255',
-            'mobile' => 'required|string|15'
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'mobile' => 'required|string|max:15'
         ]);
 
         $profile->update($request->all());
 
-        return redirect()->route('profiless.index')
+        return redirect()->route('profiles.index')
             ->with('success', 'Profile updated successfully.');
     }
 
@@ -104,3 +135,6 @@ class ProfileController extends Controller
             ->with('success', 'Profile deleted successfully.');
     }
 }
+
+
+

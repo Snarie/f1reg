@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Race>
  */
-class RaceResultFactory extends Factory
+class RaceFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,9 +17,9 @@ class RaceResultFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => 1,
-            'race_id' => 1,
-            'laptime' => $this->faker->time('i:s', strtotime('1:00'), strtotime('4:59')) . ':' . (string)random_int(0,9) . (string)random_int(0,9) . (string)random_int(0,9),
+            'name' => $this->faker->word(),
+            'location' => $this->faker->city(),
+            'length_circuit' => $this->faker->randomFloat(2, 3, 7),
         ];
     }
 }
